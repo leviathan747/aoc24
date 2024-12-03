@@ -37,3 +37,16 @@ func TestComputeDistance(t *testing.T) {
 	}
 
 }
+
+func TestComputeSimilarity(t *testing.T) {
+
+	list1 := []int{3, 4, 2, 1, 3, 3}
+	list2 := []int{4, 3, 5, 3, 9, 3}
+
+	sim := ComputeSimilarity(list1, list2)
+	expectedResult := 31
+	if sim != expectedResult {
+		t.Errorf("ComputeSimilarity: got %d, expected %d\n", sim, expectedResult)
+	}
+
+}
