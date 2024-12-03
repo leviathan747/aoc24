@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"leviathan747/aoc24/day01"
+	"leviathan747/aoc24/day02"
 	"os"
 )
 
@@ -19,6 +20,7 @@ func main() {
 	// Map function names to their corresponding functions
 	functions := map[string]func(){
 		"day01": day01.Day01,
+		"day02": day02.Day02,
 	}
 
 	// Check if the function exists and call it
