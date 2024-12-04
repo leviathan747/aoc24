@@ -11,7 +11,9 @@ import (
 func Day02() {
 	input := input.GetInput("./day02/day02_input.txt")
 	reports := ParseInput(input)
-	numSafe := NumSafeReports(reports)
+	numSafe := NumSafeReports(reports, false)
+	fmt.Println(numSafe)
+	numSafe = NumSafeReports(reports, true)
 	fmt.Println(numSafe)
 }
 
@@ -65,10 +67,26 @@ func ReportIsSafe(report []int) bool {
 	return true
 }
 
-func NumSafeReports(reports [][]int) int {
+func ReportIsSafeDampened(report []int) bool {
+	if ReportIsSafe(report) {
+		return true
+	} else {
+		for i := 0; i < len(report); i++ {
+			newReport := []int{}
+			newReport = append(newReport, report[:i]...)
+			newReport = append(newReport, report[i+1:]...)
+			if ReportIsSafe(newReport) {
+				return true
+			}
+		}
+		return false
+	}
+}
+
+func NumSafeReports(reports [][]int, damperEnable bool) int {
 	numSafe := 0
 	for i := 0; i < len(reports); i++ {
-		if ReportIsSafe(reports[i]) {
+		if damperEnable && ReportIsSafeDampened(reports[i]) || !damperEnable && ReportIsSafe(reports[i]) {
 			numSafe++
 		}
 	}

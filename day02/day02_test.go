@@ -29,7 +29,7 @@ func TestParseInput(t *testing.T) {
 
 }
 
-func TestNumSafeReports(t *testing.T) {
+func TestNumSafeReportsDamperOff(t *testing.T) {
 
 	reports := [][]int{{7, 6, 4, 2, 1},
 		{1, 2, 7, 8, 9},
@@ -38,9 +38,28 @@ func TestNumSafeReports(t *testing.T) {
 		{8, 6, 4, 4, 1},
 		{1, 3, 6, 7, 9}}
 
-	numSafe := NumSafeReports(reports)
+	numSafe := NumSafeReports(reports, false)
 
 	expectedSafe := 2
+
+	if numSafe != expectedSafe {
+		t.Errorf("TestNumSafeReports: expected %d got %d\n", expectedSafe, numSafe)
+	}
+
+}
+
+func TestNumSafeReportsDamperOn(t *testing.T) {
+
+	reports := [][]int{{7, 6, 4, 2, 1},
+		{1, 2, 7, 8, 9},
+		{9, 7, 6, 2, 1},
+		{1, 3, 2, 4, 5},
+		{8, 6, 4, 4, 1},
+		{1, 3, 6, 7, 9}}
+
+	numSafe := NumSafeReports(reports, true)
+
+	expectedSafe := 4
 
 	if numSafe != expectedSafe {
 		t.Errorf("TestNumSafeReports: expected %d got %d\n", expectedSafe, numSafe)
