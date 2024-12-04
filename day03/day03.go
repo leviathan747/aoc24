@@ -10,19 +10,28 @@ func Day03() {
 	l := NewLexer(input)
 	p := Parser{&l}
 	operations := p.Parse()
-	answer := ComputeResult(operations)
+	answer := ComputeResult(operations, false)
+	fmt.Println(answer)
+	answer = ComputeResult(operations, true)
 	fmt.Println(answer)
 }
 
-func ComputeResult(operations []Operation) int {
+func ComputeResult(operations []Operation, conditionals bool) int {
 
 	sum := 0
+	enabled := true
 
 	for i := 0; i < len(operations); i++ {
 		operation := operations[i]
 		switch operation.operator {
 		case OP_MULTIPLY:
-			sum += operation.left * operation.right
+			if enabled || !conditionals {
+				sum += operation.left * operation.right
+			}
+		case OP_ENABLE:
+			enabled = true
+		case OP_DISABLE:
+			enabled = false
 		}
 	}
 
