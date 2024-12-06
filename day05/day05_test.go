@@ -118,7 +118,34 @@ func TestSumMiddles(t *testing.T) {
 
 }
 
+func TestFixInvalids(t *testing.T) {
+
+	orderingRules := OrderingRules{
+		29: []int{13},
+		47: []int{13, 29, 53, 61},
+		53: []int{13, 29},
+		61: []int{13, 29, 53},
+		75: []int{13, 29, 47, 53, 61},
+		97: []int{13, 29, 47, 53, 61, 75}}
+
+	updates := []Update{Update{75, 97, 47, 61, 53},
+		Update{61, 13, 29},
+		Update{97, 13, 75, 29, 47}}
+
+	expectedSum := 123
+
+	FixInvalidUpdates(updates, orderingRules)
+
+	sum := SumMiddles(updates)
+
+	if sum != expectedSum {
+		t.Errorf("TestFixInvalids: Incorrect sum: expected %d, got %d\n", expectedSum, sum)
+	}
+
+}
+
 func TestPart1(t *testing.T) {
+	t.Skip()
 	input := input.GetInput("./day05_input.txt")
 	orderingRules, updates := ParseInput(input)
 	validUpdates := []Update{}

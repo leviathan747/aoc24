@@ -14,12 +14,18 @@ func Day05() {
 	input := input.GetInput("./day05/day05_input.txt")
 	orderingRules, updates := ParseInput(input)
 	validUpdates := []Update{}
+	invalidUpdates := []Update{}
 	for i := 0; i < len(updates); i++ {
 		if UpdateIsValid(updates[i], orderingRules) {
 			validUpdates = append(validUpdates, updates[i])
+		} else {
+			invalidUpdates = append(invalidUpdates, updates[i])
 		}
 	}
 	sum := SumMiddles(validUpdates)
+	fmt.Println(sum)
+	FixInvalidUpdates(invalidUpdates, orderingRules)
+	sum = SumMiddles(invalidUpdates)
 	fmt.Println(sum)
 }
 
@@ -91,15 +97,15 @@ func MustPrecede(update Update, i, j int, rules OrderingRules) bool {
 func UpdateIsValid(update Update, rules OrderingRules) bool {
 	ruleMap := map[int]bool{}
 	return sort.SliceIsSorted(update, func(i, j int) bool {
-    val, present := ruleMap[i*100+j]
-    if present {
-      return val
-    } else {
-      val = MustPrecede(update, i, j, rules)
+		val, present := ruleMap[i*100+j]
+		if present {
+			return val
+		} else {
+			val = MustPrecede(update, i, j, rules)
 			ruleMap[i*100+j] = val
-      return val
-    }
-  })
+			return val
+		}
+	})
 }
 
 func SumMiddles(updates []Update) int {
@@ -110,4 +116,23 @@ func SumMiddles(updates []Update) int {
 		}
 	}
 	return sum
+}
+
+func FixInvalidUpdates(updates []Update, rules OrderingRules) {
+	for i := 0; i < len(updates); i++ {
+		update := updates[i]
+		for j := 0; j < len(update); j++ { // this is super janky, but running the sort n times fixes things
+			ruleMap := map[int]bool{}
+			sort.SliceStable(update, func(i, j int) bool {
+				val, present := ruleMap[i*100+j]
+				if present {
+					return val
+				} else {
+					val = MustPrecede(update, i, j, rules)
+					ruleMap[i*100+j] = val
+					return val
+				}
+			})
+		}
+	}
 }
