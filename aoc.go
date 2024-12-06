@@ -5,6 +5,7 @@ import (
 	"leviathan747/aoc24/day01"
 	"leviathan747/aoc24/day02"
 	"leviathan747/aoc24/day03"
+	"leviathan747/aoc24/day04"
 	"os"
 )
 
@@ -23,6 +24,7 @@ func main() {
 		"day01": day01.Day01,
 		"day02": day02.Day02,
 		"day03": day03.Day03,
+		"day04": day04.Day04,
 	}
 
 	// Check if the function exists and call it
