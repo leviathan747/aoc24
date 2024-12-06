@@ -12,6 +12,8 @@ func Day04() {
 	matrix := ParseInput(input)
 	count := FindXmas(matrix)
 	fmt.Println(count)
+	count = FindXmas2(matrix)
+	fmt.Println(count)
 }
 
 func ParseInput(input string) [][]rune {
@@ -125,4 +127,24 @@ func FindXmas(matrix [][]rune) int {
 	// fmt.Println(sb.String())
 
 	return strings.Count(sb.String(), "XMAS")
+}
+
+func FindXmas2(matrix [][]rune) int {
+
+	count := 0
+
+	// loop through ignoring the borders and look for A's
+	for i := 1; i < len(matrix)-1; i++ {
+		for j := 1; j < len(matrix[i])-1; j++ {
+			if matrix[i][j] == 'A' {
+				corners := string([]rune{matrix[i-1][j-1], matrix[i+1][j-1], matrix[i+1][j+1], matrix[i-1][j+1]})
+				if corners == "MMSS" || corners == "SSMM" || corners == "SMMS" || corners == "MSSM" {
+					count++
+				}
+			}
+		}
+	}
+
+	return count
+
 }

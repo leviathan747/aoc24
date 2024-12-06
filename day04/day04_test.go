@@ -58,4 +58,12 @@ func TestFindXmas(t *testing.T) {
 		t.Errorf("TestFindXmas: expected %d got %d\n", expectedCount, count)
 	}
 
+	expectedCount = 9
+
+	count = FindXmas2(testData)
+
+	if count != expectedCount {
+		t.Errorf("TestFindXmas: expected %d got %d\n", expectedCount, count)
+	}
+
 }
