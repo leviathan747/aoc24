@@ -2,7 +2,10 @@
 package day05
 
 import (
+	// "fmt"
+	"leviathan747/aoc24/input"
 	"reflect"
+	"slices"
 	"testing"
 )
 
@@ -37,27 +40,13 @@ func TestParseInput(t *testing.T) {
 61,13,29
 97,13,75,29,47`
 
-	expectedOrderingRules := []OrderingRule{OrderingRule{47, 53},
-		OrderingRule{97, 13},
-		OrderingRule{97, 61},
-		OrderingRule{97, 47},
-		OrderingRule{75, 29},
-		OrderingRule{61, 13},
-		OrderingRule{75, 53},
-		OrderingRule{29, 13},
-		OrderingRule{97, 29},
-		OrderingRule{53, 29},
-		OrderingRule{61, 53},
-		OrderingRule{97, 53},
-		OrderingRule{61, 29},
-		OrderingRule{47, 13},
-		OrderingRule{75, 47},
-		OrderingRule{97, 75},
-		OrderingRule{47, 61},
-		OrderingRule{75, 61},
-		OrderingRule{47, 29},
-		OrderingRule{75, 13},
-		OrderingRule{53, 13}}
+	expectedOrderingRules := OrderingRules{
+		29: []int{13},
+		47: []int{13, 29, 53, 61},
+		53: []int{13, 29},
+		61: []int{13, 29, 53},
+		75: []int{13, 29, 47, 53, 61},
+		97: []int{13, 29, 47, 53, 61, 75}}
 
 	expectedUpdates := []Update{Update{75, 47, 61, 53, 29},
 		Update{97, 61, 53, 29, 13},
@@ -67,6 +56,10 @@ func TestParseInput(t *testing.T) {
 		Update{97, 13, 75, 29, 47}}
 
 	orderingRules, updates := ParseInput(testData)
+
+	for _, v := range orderingRules {
+		slices.Sort(v)
+	}
 
 	if !reflect.DeepEqual(orderingRules, expectedOrderingRules) {
 		t.Errorf("TestParseInput: Ordering rules do not match:\nexpected: %v\ngot:      %v\n", expectedOrderingRules, orderingRules)
@@ -80,27 +73,13 @@ func TestParseInput(t *testing.T) {
 
 func TestUpdateIsValid(t *testing.T) {
 
-	orderingRules := []OrderingRule{OrderingRule{47, 53},
-		OrderingRule{97, 13},
-		OrderingRule{97, 61},
-		OrderingRule{97, 47},
-		OrderingRule{75, 29},
-		OrderingRule{61, 13},
-		OrderingRule{75, 53},
-		OrderingRule{29, 13},
-		OrderingRule{97, 29},
-		OrderingRule{53, 29},
-		OrderingRule{61, 53},
-		OrderingRule{97, 53},
-		OrderingRule{61, 29},
-		OrderingRule{47, 13},
-		OrderingRule{75, 47},
-		OrderingRule{97, 75},
-		OrderingRule{47, 61},
-		OrderingRule{75, 61},
-		OrderingRule{47, 29},
-		OrderingRule{75, 13},
-		OrderingRule{53, 13}}
+	orderingRules := OrderingRules{
+		29: []int{13},
+		47: []int{13, 29, 53, 61},
+		53: []int{13, 29},
+		61: []int{13, 29, 53},
+		75: []int{13, 29, 47, 53, 61},
+		97: []int{13, 29, 47, 53, 61, 75}}
 
 	updates := []Update{Update{75, 47, 61, 53, 29},
 		Update{97, 61, 53, 29, 13},
@@ -116,7 +95,7 @@ func TestUpdateIsValid(t *testing.T) {
 		valid := UpdateIsValid(updates[i], orderingRules)
 
 		if valid != expectedResults[i] {
-			t.Errorf("TestUpdateIsValid: %v\nexpected: %v\ngot:      %v\n", updates[i], valid, expectedResults[i])
+			t.Errorf("TestUpdateIsValid: %v\nexpected: %v\ngot:      %v\n", updates[i], expectedResults[i], valid)
 		}
 
 	}
@@ -137,4 +116,21 @@ func TestSumMiddles(t *testing.T) {
 		t.Errorf("TestSumMiddles: Incorrect sum: expected: %v\ngot:      %v\n", expectedSum, sum)
 	}
 
+}
+
+func TestPart1(t *testing.T) {
+	input := input.GetInput("./day05_input.txt")
+	orderingRules, updates := ParseInput(input)
+	validUpdates := []Update{}
+	for i := 0; i < len(updates); i++ {
+		// fmt.Printf("Checking (%d/%d): %v\n", i+1, len(updates), updates[i])
+		if UpdateIsValid(updates[i], orderingRules) {
+			validUpdates = append(validUpdates, updates[i])
+		}
+	}
+	sum := SumMiddles(validUpdates)
+	expectedSum := 5087
+	if sum != expectedSum {
+		t.Errorf("TestPart1: Incorrect sum: expected %d, got %d\n", expectedSum, sum)
+	}
 }

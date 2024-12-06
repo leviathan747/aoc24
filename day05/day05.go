@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"leviathan747/aoc24/input"
 	"regexp"
-	"slices"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -23,21 +23,16 @@ func Day05() {
 	fmt.Println(sum)
 }
 
-type OrderingRule struct {
-	prev int
-	next int
-}
+type OrderingRules map[int][]int
 
 type Update []int
 
-func ParseInput(input string) ([]OrderingRule, []Update) {
-	orderingRules := []OrderingRule{}
+func ParseInput(input string) (OrderingRules, []Update) {
+	orderingRules := OrderingRules{}
 	updates := []Update{}
 
 	// regular expression for ordering rules
 	re := regexp.MustCompile(`([1-9][0-9]*)\|([1-9][0-9]*)`)
-
-	// function
 
 	scanner := bufio.NewScanner(strings.NewReader(input))
 	for scanner.Scan() {
@@ -46,7 +41,12 @@ func ParseInput(input string) ([]OrderingRule, []Update) {
 		if m != nil {
 			l, _ := strconv.Atoi(m[1])
 			r, _ := strconv.Atoi(m[2])
-			orderingRules = append(orderingRules, OrderingRule{l, r})
+			_, present := orderingRules[l]
+			if present {
+				orderingRules[l] = append(orderingRules[l], r)
+			} else {
+				orderingRules[l] = []int{r}
+			}
 		} else if strings.ContainsRune(line, ',') {
 			f := strings.FieldsFunc(line, func(c rune) bool { return c == ',' })
 			update := Update{}
@@ -61,49 +61,45 @@ func ParseInput(input string) ([]OrderingRule, []Update) {
 	return orderingRules, updates
 }
 
-func UpdateIsValid(update Update, rules []OrderingRule) bool {
-	// for each page in the update
-	for i := 0; i < len(update); i++ {
-		// check "must precede" violations
-		mustPrecede := MustPrecede(update[i], rules)
-		for j := 0; j < i; j++ {
-			if slices.Contains(mustPrecede, update[j]) {
-				return false
-			}
-		}
-		// check "must follow" violations
-		mustFollow := MustFollow(update[i], rules)
-		for k := i + 1; k < len(update); k++ {
-			if slices.Contains(mustFollow, update[k]) {
-				return false
+func MustPrecede(update Update, i, j int, rules OrderingRules) bool {
+	a, b := update[i], update[j]
+	aRules := rules[a]
+
+	// get all the numbers that 'a' must precede according to the rules
+	aMustPrecede := []int{}
+	for k := 0; k < len(update); k++ {
+		for l := 0; l < len(aRules); l++ {
+			if update[k] == aRules[l] {
+				if aRules[l] == b {
+					return true
+				} else {
+					aMustPrecede = append(aMustPrecede, k)
+				}
 			}
 		}
 	}
-	return true
+	// if 'b' is not in the list, recursviely check the rules applying to those numbers
+	for k := 0; k < len(aMustPrecede); k++ {
+		if MustPrecede(update, aMustPrecede[k], j, rules) {
+			return true
+		}
+	}
+	// did not find a rule that specified that 'a' must precede 'b'
+	return false
 }
 
-func MustPrecede(value int, rules []OrderingRule) []int {
-	mustPrecede := []int{}
-	for i := 0; i < len(rules); i++ {
-		if value == rules[i].prev {
-			if !slices.Contains(mustPrecede, rules[i].next) {
-				mustPrecede = append(mustPrecede, rules[i].next)
-			}
-		}
-	}
-	return mustPrecede
-}
-
-func MustFollow(value int, rules []OrderingRule) []int {
-	mustFollow := []int{}
-	for i := 0; i < len(rules); i++ {
-		if value == rules[i].next {
-			if !slices.Contains(mustFollow, rules[i].prev) {
-				mustFollow = append(mustFollow, rules[i].prev)
-			}
-		}
-	}
-	return mustFollow
+func UpdateIsValid(update Update, rules OrderingRules) bool {
+	ruleMap := map[int]bool{}
+	return sort.SliceIsSorted(update, func(i, j int) bool {
+    val, present := ruleMap[i*100+j]
+    if present {
+      return val
+    } else {
+      val = MustPrecede(update, i, j, rules)
+			ruleMap[i*100+j] = val
+      return val
+    }
+  })
 }
 
 func SumMiddles(updates []Update) int {
