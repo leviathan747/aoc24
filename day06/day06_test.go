@@ -72,3 +72,29 @@ func TestCountSteps(t *testing.T) {
 	}
 
 }
+
+func TestObstructionLocations(t *testing.T) {
+
+	theMap := RoomMap{{false, false, false, false, true, false, false, false, false, false},
+		{false, false, false, false, false, false, false, false, false, true},
+		{false, false, false, false, false, false, false, false, false, false},
+		{false, false, true, false, false, false, false, false, false, false},
+		{false, false, false, false, false, false, false, true, false, false},
+		{false, false, false, false, false, false, false, false, false, false},
+		{false, true, false, false, false, false, false, false, false, false},
+		{false, false, false, false, false, false, false, false, true, false},
+		{true, false, false, false, false, false, false, false, false, false},
+		{false, false, false, false, false, false, true, false, false, false}}
+
+	x, y := 4, 6
+	xInc, yInc := 0, -1
+
+	expectedLocations := 6
+
+	locations := CountObstructionLocations(theMap, x, y, xInc, yInc)
+
+	if locations != expectedLocations {
+		t.Errorf("TestCountLocations: expected %d got %d\n", expectedLocations, locations)
+	}
+
+}
