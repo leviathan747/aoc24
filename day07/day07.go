@@ -14,12 +14,21 @@ func Day07() {
 	calibrations := ParseInput(input)
 	sum := 0
 	for i := range calibrations {
-		if CalibrationIsValid(calibrations[i]) {
+		if CalibrationIsValid(calibrations[i], []Operation{Multiply, Add}) {
+			sum += calibrations[i].test
+		}
+	}
+	fmt.Println(sum)
+	sum = 0
+	for i := range calibrations {
+		if CalibrationIsValid(calibrations[i], []Operation{Multiply, Add, Concat}) {
 			sum += calibrations[i].test
 		}
 	}
 	fmt.Println(sum)
 }
+
+type Operation func(int, int) int
 
 type Calibration struct {
 	test     int
@@ -55,19 +64,53 @@ func StringsToInts(input []string) []int {
 	return result
 }
 
-func CalibrationIsValid(c Calibration) bool {
-	for i := 0; i < 0b1<<(len(c.operands)-1); i++ {
+func CalibrationIsValid(c Calibration, operations []Operation) bool {
+	for i := 0; i < Pow(len(operations), len(c.operands)-1); i++ {
+		k := i
 		val := c.operands[0]
 		for j := 1; j < len(c.operands); j++ {
-			if (i>>(j-1))&0b1 == 1 {
-				val *= c.operands[j]
-			} else {
-				val += c.operands[j]
-			}
+			val = operations[k%len(operations)](val, c.operands[j])
+			k /= len(operations)
 		}
 		if val == c.test {
 			return true
 		}
 	}
 	return false
+}
+
+func Multiply(x, y int) int {
+	return x * y
+}
+
+func Add(x, y int) int {
+	return x + y
+}
+
+func Concat(x, y int) int {
+	return x*Pow(10, LogBase(y, 10)+1) + y
+}
+
+func Pow(x, n int) int {
+	if x == 0 || n < 0 {
+		return 0
+	} else {
+		switch n {
+		case 0:
+			return 1
+		case 1:
+			return x
+		default:
+			return Pow(x, n/2) * Pow(x, n-(n/2))
+		}
+	}
+}
+
+func LogBase(x, b int) int {
+	val := -1
+	for x > 0 {
+		x = x / b
+		val++
+	}
+	return val
 }
